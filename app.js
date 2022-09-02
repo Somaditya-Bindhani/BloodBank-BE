@@ -16,7 +16,7 @@ app.use("/api", router);
 
 try {
   mongoose.connect(
-    "mongodb+srv://bbUser:qwerty123@cluster0.cdiv8qk.mongodb.net/?retryWrites=true&w=majority",
+    process.env.MONGO_URL,
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
