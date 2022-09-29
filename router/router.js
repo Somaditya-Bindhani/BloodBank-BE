@@ -3,6 +3,12 @@ const { body } = require("express-validator");
 const router = express.Router();
 const authController = require("../controllers/authControllers");
 const checkInvalidInput = require("../middlewares/invalidPost");
+const authMiddleware = require("../middlewares/auth");
+
+// router.use(authMiddleware.auth);
+// router.use("/auth" , router.auth)
+// xws/api/auth/login
+// xws/api/organization/createorgan
 
 router.post(
   "/login",
