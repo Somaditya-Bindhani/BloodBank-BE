@@ -16,6 +16,7 @@ router.post(
   checkInvalidInput.checkError,
   authController.createOrgAdmin
 );
+
 router.post(
   "/createOrganization",
   [
