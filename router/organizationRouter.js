@@ -1,5 +1,42 @@
-// CRUD
-//create org - done
-//delete org
-//update org 
-//get org 
+const express = require("express");
+const { body } = require("express-validator");
+const router = express.Router({ mergeParams: true });
+const orgController = require("../controllers/orgControllers");
+const checkInvalidInput = require("../middlewares/invalidPost");
+
+router.post(
+  "/createOrganization",
+  [
+    body("name").notEmpty(),
+    body("address").notEmpty(),
+    body("state").notEmpty(),
+    body("city").notEmpty(),
+    body("PIN").isNumeric().isLength({ min: 6, max: 6 }),
+    body("contactNumber").isNumeric().isLength({ min: 10, max: 10 }),
+  ],
+  checkInvalidInput.checkError,
+  orgController.createOrganization
+);
+
+router.get(
+  "/getOrganization",
+  [body("organizationId").notEmpty()],
+  checkInvalidInput.checkError,
+  orgController.getOrganization
+);
+
+router.delete(
+  "/deleteOrganization",
+  [body("organizationId").notEmpty()],
+  checkInvalidInput.checkError,
+  orgController.deleteOrganization
+);
+
+router.put(
+  "/updateOrganization",
+  [body("organizationId").notEmpty(), body("updatedValues").notEmpty()],
+  checkInvalidInput.checkError,
+  orgController.updateOrganization
+);
+
+module.exports = router;
