@@ -4,7 +4,7 @@
 const express = require("express");
 const { body } = require("express-validator");
 const router = express.Router({ mergeParams: true });
-const { signup, login } = require("../controllers/authControllers");
+const { login } = require("../controllers/authControllers");
 const checkInvalidInput = require("../middlewares/invalidPost");
 
 // route to create super admin only for devlopment
