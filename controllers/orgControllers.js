@@ -38,30 +38,32 @@ const getOrganization = async (req, res) => {
 const deleteOrganization = async (req, res) => {
   const { organizationId } = req.params;
 
-  // Archive
-
   try {
-    await Organization.deleteOne({_id: organizationId});
+    await Organization.deleteOne({ _id: organizationId });
     return res.status(200).json("Organization Deleted.");
-  } catch(err) {
+  } catch (err) {
     return res.status(500).json({ errorMessage: err.message });
   }
-}
+};
 
 const updateOrganization = async (req, res) => {
   const { organizationId, updatedValues } = req.body;
   // updatedValues -> object contains fields to be updated with values
   try {
-    const updatedOrganization = await Organization.findByIdAndUpdate(organizationId, updatedValues, () => {});
+    const updatedOrganization = await Organization.findByIdAndUpdate(
+      organizationId,
+      updatedValues,
+      () => {}
+    );
     return res.state(200).json(updatedOrganization);
-  } catch(err) {
+  } catch (err) {
     return res.status(500).json({ errorMessage: err.message });
   }
-}
+};
 
 module.exports = {
   createOrganization,
   getOrganization,
   deleteOrganization,
-  updateOrganization
+  updateOrganization,
 };
