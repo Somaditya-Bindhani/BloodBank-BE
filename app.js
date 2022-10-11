@@ -12,11 +12,16 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", router);
+
 app.use((err, req, res, next) => {
   res
     .status(err.code || 500)
     .json({ error: err.message || "Something went wrong" });
 });
+app.use("*", (req, res) => {
+  res.status(500).json({ error: err.message || "Route not found" });
+});
+
 try {
   mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,

@@ -4,6 +4,8 @@ const router = express.Router({ mergeParams: true });
 const orgController = require("../controllers/orgControllers");
 const checkInvalidInput = require("../middlewares/invalidPost");
 
+router.get("/", orgController.allOrganizations);
+
 router.post(
   "/createOrganization",
   [
@@ -18,10 +20,7 @@ router.post(
   orgController.createOrganization
 );
 
-router.get(
-  "/getOrganization/:organizationId",
-  orgController.getOrganization
-);
+router.get("/getOrganization/:organizationId", orgController.getOrganization);
 
 router.delete(
   "/deleteOrganization/:organizationId",
@@ -29,8 +28,15 @@ router.delete(
 );
 
 router.put(
-  "/updateOrganization",
-  [body("organizationId").notEmpty(), body("updatedValues").notEmpty()],
+  "/updateOrganization/:organizationId",
+  [
+    body("name").notEmpty(),
+    body("address").notEmpty(),
+    body("state").notEmpty(),
+    body("city").notEmpty(),
+    body("PIN").isNumeric().isLength({ min: 6, max: 6 }),
+    body("contactNumber").isNumeric().isLength({ min: 10, max: 10 }),
+  ],
   checkInvalidInput.checkError,
   orgController.updateOrganization
 );
