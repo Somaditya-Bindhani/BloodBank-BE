@@ -16,7 +16,7 @@ const allOrganizations = async (req, res, next) => {
 };
 const createOrganization = async (req, res, next) => {
   const { name, address, state, city, PIN, contactNumber } = req.body;
-  console.log(req.body);
+
   try {
     const orgData = await Organization.findOne({ name, state, city });
     if (orgData) {
@@ -45,18 +45,21 @@ const getOrganization = async (req, res, next) => {
   const { organizationId } = req.params;
   try {
     const organizationDetail = await Organization.findById(organizationId);
+    if (!organizationDetail)
+      return next(new HttpError("Organisation Details Not Found", 404));
     return res.status(200).json(organizationDetail);
   } catch (err) {
-    return res.status(500).json({ errorMessage: err.message });
+    return next(new HttpError(err.message, 500));
   }
 };
 
 const deleteOrganization = async (req, res, next) => {
   const { organizationId } = req.params;
-
   try {
     await Organization.deleteOne({ _id: organizationId });
-    return res.status(200).json("Organization Deleted.");
+    return res
+      .status(200)
+      .json({ message: "Organization Deleted Successfully." });
   } catch (err) {
     return next(new HttpError(err.message, 500));
   }
