@@ -19,16 +19,12 @@ router.post(
 );
 
 router.get(
-  "/getOrganization",
-  [body("organizationId").notEmpty()],
-  checkInvalidInput.checkError,
+  "/getOrganization/:organizationId",
   orgController.getOrganization
 );
 
 router.delete(
-  "/deleteOrganization",
-  [body("organizationId").notEmpty()],
-  checkInvalidInput.checkError,
+  "/deleteOrganization/:organizationId",
   orgController.deleteOrganization
 );
 

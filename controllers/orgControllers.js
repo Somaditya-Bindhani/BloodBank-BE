@@ -26,7 +26,7 @@ const createOrganization = async (req, res) => {
   }
 };
 const getOrganization = async (req, res) => {
-  const { organizationId } = req.body;
+  const { organizationId } = req.params;
   try {
     const organizationDetail = await Organization.findById(organizationId);
     return res.status(200).json(organizationDetail);
@@ -36,7 +36,7 @@ const getOrganization = async (req, res) => {
 };
 
 const deleteOrganization = async (req, res) => {
-  const { organizationId } = req.body;
+  const { organizationId } = req.params;
 
   try {
     await Organization.deleteOne({ _id: organizationId });
