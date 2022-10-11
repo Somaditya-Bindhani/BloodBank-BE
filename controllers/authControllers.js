@@ -32,14 +32,12 @@ const login = async (req, res, next) => {
   try {
     const userData = await Admin.findOne({ email });
     if (!userData) {
-      // return res.status(404).json("User Not found .");
       return next(new HttpError("User Not found.", 404));
     }
 
     let passIsValid = false;
     passIsValid = await bcrypt.compare(password, userData.password);
     if (!passIsValid) {
-      // return res.status(402).json("Invalid Credentails.");
       return next(new HttpError("Invalid Credentails.", 402));
     }
 
@@ -58,8 +56,7 @@ const login = async (req, res, next) => {
     });
   } catch (err) {
     console.log(err.message);
-    return next(new HttpError("Internal Server Error.", 500));
-    // return res.status(500).json("Internal server error .Unable to login .");
+    return next(HttpError("Internal Server Error.", 500));
   }
 };
 
