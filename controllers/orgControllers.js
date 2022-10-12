@@ -21,7 +21,7 @@ const createOrganization = async (req, res, next) => {
       contactNumber,
     });
     await data.save();
-    return res.status(200).json({ message: "Organization Created ." });
+    return res.status(200).json(orgId);
   } catch (err) {
     return next(
       new HttpError(
