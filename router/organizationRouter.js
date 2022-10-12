@@ -18,10 +18,14 @@ router.post(
   orgController.createOrganization
 );
 
-router.get(
-  "/getOrganization/:organizationId",
-  orgController.getOrganization
+router.post(
+  "/addBloodData",
+  [body("bloodData").notEmpty(), body("orgId").isMongoId()],
+  checkInvalidInput.checkError,
+  orgController.addBloodData
 );
+
+router.get("/getOrganization/:orgId", orgController.getOrganization);
 
 router.delete(
   "/deleteOrganization/:organizationId",

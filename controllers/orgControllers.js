@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 const Organization = require("../models/organization");
-
+const Workspace = require("../models/workspace");
+const Blood = require("../models/blood");
 const createOrganization = async (req, res) => {
   const { name, address, state, city, PIN, contactNumber } = req.body;
   try {
     const orgData = await Organization.findOne({ name, state, city });
     if (orgData) {
-      console.log(orgData);
       return res.status(404).json("Organization Exist.");
     }
     const data = new Organization({
@@ -18,18 +18,23 @@ const createOrganization = async (req, res) => {
       contactNumber,
     });
     await data.save();
-    return res.status(200).json("Organization Created .");
+    return res.status(200).json({ orgId: data.id });
   } catch (err) {
     return res
       .status(500)
       .json("Internal server error .Unable to create IOrganization .");
   }
 };
+
 const getOrganization = async (req, res) => {
-  const { organizationId } = req.params;
+  const { orgId } = req.params;
   try {
-    const organizationDetail = await Organization.findById(organizationId);
-    return res.status(200).json(organizationDetail);
+    const workspace = await Workspace.findOne({ orgId: orgId })
+      .populate({
+        path: "orgId",
+      })
+      .populate({ path: "orgAdminId", select: ["email", "name" ] });
+    return res.status(200).json(workspace);
   } catch (err) {
     return res.status(500).json({ errorMessage: err.message });
   }
@@ -55,9 +60,22 @@ const updateOrganization = async (req, res) => {
       updatedValues,
       () => {}
     );
-    return res.state(200).json(updatedOrganization);
+    return res.status(200).json(updatedOrganization);
   } catch (err) {
     return res.status(500).json({ errorMessage: err.message });
+  }
+};
+
+const addBloodData = async (req, res) => {
+  const { bloodData, orgId } = req.body;
+  console.log(req.body);
+  try {
+    const data = await Blood.insertMany(
+      bloodData.map((ele) => ({ ...ele, orgId: orgId }))
+    );
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -66,4 +84,5 @@ module.exports = {
   getOrganization,
   deleteOrganization,
   updateOrganization,
+  addBloodData,
 };
