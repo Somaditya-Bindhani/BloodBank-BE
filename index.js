@@ -33,7 +33,7 @@ app.use("*", (req, res) => {
   res.status(500).json({ error: "Route not found" });
 });
 
-databaseConnect.connect();
+// databaseConnect.connect();
 const PORT = process.env.PORT || 5050;
 app.listen(PORT, () => {
   console.log("App started at port 5050.");
