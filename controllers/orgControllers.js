@@ -59,11 +59,12 @@ const getOrganization = async (req, res, next) => {
 
 const deleteOrganization = async (req, res, next) => {
   const { organizationId } = req.params;
+  console.log("ok");
   try {
-    await Organization.deleteOne({ _id: organizationId });
-    return res
-      .status(200)
-      .json({ message: "Organization Deleted Successfully." });
+    const data = await Organization.deleteOne({ _id: organizationId });
+
+    if (data && data.acknowledged && data.deletedCount)
+      return res.redirect(302, "/api/organization/");
   } catch (err) {
     return next(new HttpError(err.message, 500));
   }
