@@ -3,9 +3,6 @@ const HttpError = require("../models/http-error");
 const Organization = require("../models/organization");
 const Workspace = require("../models/workspace");
 const Blood = require("../models/blood");
-const createOrganization = async (req, res) => {
-
-
 
 const createOrganization = async (req, res, next) => {
   const { name, address, state, city, PIN, contactNumber } = req.body;
@@ -37,16 +34,16 @@ const createOrganization = async (req, res, next) => {
 
 const getOrganization = async (req, res) => {
   const { orgId } = req.params;
-  try{
-  if(!orgId){
-    let organizations = await Organization.find();
-    return res.status(200).json(organizations);
-  }
+  try {
+    if (!orgId) {
+      let organizations = await Organization.find();
+      return res.status(200).json(organizations);
+    }
     const workspace = await Workspace.findOne({ orgId: orgId })
       .populate({
         path: "orgId",
       })
-      .populate({ path: "orgAdminId", select: ["email", "name" ] });
+      .populate({ path: "orgAdminId", select: ["email", "name"] });
     return res.status(200).json(workspace);
   } catch (err) {
     return next(new HttpError(err.message, 500));
@@ -101,5 +98,4 @@ module.exports = {
   deleteOrganization,
   updateOrganization,
   addBloodData,
-  allOrganizations
 };
