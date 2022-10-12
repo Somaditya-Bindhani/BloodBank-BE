@@ -33,8 +33,15 @@ router.delete(
 );
 
 router.put(
-  "/updateOrganization",
-  [body("organizationId").notEmpty(), body("updatedValues").notEmpty()],
+  "/updateOrganization/:organizationId",
+  [
+    body("name").notEmpty(),
+    body("address").notEmpty(),
+    body("state").notEmpty(),
+    body("city").notEmpty(),
+    body("PIN").isNumeric().isLength({ min: 6, max: 6 }),
+    body("contactNumber").isNumeric().isLength({ min: 10, max: 10 }),
+  ],
   checkInvalidInput.checkError,
   orgController.updateOrganization
 );

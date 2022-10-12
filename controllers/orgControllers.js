@@ -1,9 +1,15 @@
 const mongoose = require("mongoose");
+const HttpError = require("../models/http-error");
 const Organization = require("../models/organization");
 const Workspace = require("../models/workspace");
 const Blood = require("../models/blood");
 const createOrganization = async (req, res) => {
+
+
+
+const createOrganization = async (req, res, next) => {
   const { name, address, state, city, PIN, contactNumber } = req.body;
+
   try {
     const orgData = await Organization.findOne({ name, state, city });
     if (orgData) {
@@ -18,17 +24,24 @@ const createOrganization = async (req, res) => {
       contactNumber,
     });
     await data.save();
-    return res.status(200).json({ orgId: data.id });
+    return res.status(200).json({ message: "Organization Created ." });
   } catch (err) {
-    return res
-      .status(500)
-      .json("Internal server error .Unable to create IOrganization .");
+    return next(
+      new HttpError(
+        "Internal server error .Unable to create IOrganization .",
+        500
+      )
+    );
   }
 };
 
 const getOrganization = async (req, res) => {
   const { orgId } = req.params;
-  try {
+  try{
+  if(!orgId){
+    let organizations = await Organization.find();
+    return res.status(200).json(organizations);
+  }
     const workspace = await Workspace.findOne({ orgId: orgId })
       .populate({
         path: "orgId",
@@ -36,33 +49,36 @@ const getOrganization = async (req, res) => {
       .populate({ path: "orgAdminId", select: ["email", "name" ] });
     return res.status(200).json(workspace);
   } catch (err) {
-    return res.status(500).json({ errorMessage: err.message });
+    return next(new HttpError(err.message, 500));
   }
 };
 
-const deleteOrganization = async (req, res) => {
+const deleteOrganization = async (req, res, next) => {
   const { organizationId } = req.params;
-
   try {
     await Organization.deleteOne({ _id: organizationId });
-    return res.status(200).json("Organization Deleted.");
+    return res
+      .status(200)
+      .json({ message: "Organization Deleted Successfully." });
   } catch (err) {
-    return res.status(500).json({ errorMessage: err.message });
+    return next(new HttpError(err.message, 500));
   }
 };
 
-const updateOrganization = async (req, res) => {
-  const { organizationId, updatedValues } = req.body;
+const updateOrganization = async (req, res, next) => {
+  const { name, address, state, city, PIN, contactNumber } = req.body;
+  const updatedValues = { name, address, state, city, PIN, contactNumber };
+  const { organizationId } = req.params;
   // updatedValues -> object contains fields to be updated with values
   try {
     const updatedOrganization = await Organization.findByIdAndUpdate(
       organizationId,
       updatedValues,
-      () => {}
+      { returnDocument: "after" }
     );
     return res.status(200).json(updatedOrganization);
   } catch (err) {
-    return res.status(500).json({ errorMessage: err.message });
+    return next(new HttpError(err.message, 500));
   }
 };
 
@@ -85,4 +101,5 @@ module.exports = {
   deleteOrganization,
   updateOrganization,
   addBloodData,
+  allOrganizations
 };
