@@ -15,6 +15,13 @@ router.post(
   orgAdminController.createOrgAdmin
 );
 
+router.put(
+  "/resetPassword",
+  [body("email").notEmpty()],
+  checkInvalidInput.checkError,
+  orgAdminController.orgAdminPassReset
+);
+
 router.post(
   "/linkOrgAdmin",
   [

@@ -6,10 +6,10 @@ const authRoutes = require("./authRouter");
 const orgAdminRoutes = require("./orgAdminRouter");
 const organizationRoutes = require("./organizationRouter");
 
-// router.use(authMiddleware.auth);
 router.use("/auth", authRoutes);
+// router.use(authMiddleware);
+
 router.use("/orgAdmin", orgAdminRoutes);
 router.use("/organization", organizationRoutes);
-
 
 module.exports = router;

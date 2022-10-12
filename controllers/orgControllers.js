@@ -1,19 +1,9 @@
 const mongoose = require("mongoose");
 const HttpError = require("../models/http-error");
 const Organization = require("../models/organization");
+const Workspace = require("../models/workspace");
+const Blood = require("../models/blood");
 
-const allOrganizations = async (req, res, next) => {
-  try {
-    let allOrganizations;
-    allOrganizations = await Organization.find();
-    if (!allOrganizations)
-      return next(new HttpError("Organizations Not Available", 404));
-
-    return res.json(allOrganizations);
-  } catch (err) {
-    return next(new HttpError("Failed to fetch organisations", 500));
-  }
-};
 const createOrganization = async (req, res, next) => {
   const { name, address, state, city, PIN, contactNumber } = req.body;
 
@@ -41,13 +31,27 @@ const createOrganization = async (req, res, next) => {
     );
   }
 };
-const getOrganization = async (req, res, next) => {
-  const { organizationId } = req.params;
+const getAllOrganization = async (req, res, next) => {
   try {
-    const organizationDetail = await Organization.findById(organizationId);
-    if (!organizationDetail)
-      return next(new HttpError("Organisation Details Not Found", 404));
-    return res.status(200).json(organizationDetail);
+    let organizations = await Organization.find();
+    return res.status(200).json(organizations);
+  } catch (err) {
+    return next(new HttpError(err.message, 500));
+  }
+};
+const getOrganization = async (req, res, next) => {
+  const { orgId } = req.params;
+  try {
+    if (!orgId) {
+      let organizations = await Organization.find();
+      return res.status(200).json(organizations);
+    }
+    const workspace = await Workspace.findOne({ orgId: orgId })
+      .populate({
+        path: "orgId",
+      })
+      .populate({ path: "orgAdminId", select: ["email", "name"] });
+    return res.status(200).json(workspace);
   } catch (err) {
     return next(new HttpError(err.message, 500));
   }
@@ -77,10 +81,22 @@ const updateOrganization = async (req, res, next) => {
       updatedValues,
       { returnDocument: "after" }
     );
-
     return res.status(200).json(updatedOrganization);
   } catch (err) {
     return next(new HttpError(err.message, 500));
+  }
+};
+
+const addBloodData = async (req, res) => {
+  const { bloodData, orgId } = req.body;
+  console.log(req.body);
+  try {
+    const data = await Blood.insertMany(
+      bloodData.map((ele) => ({ ...ele, orgId: orgId }))
+    );
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -89,5 +105,6 @@ module.exports = {
   getOrganization,
   deleteOrganization,
   updateOrganization,
-  allOrganizations,
+  addBloodData,
+  getAllOrganization
 };

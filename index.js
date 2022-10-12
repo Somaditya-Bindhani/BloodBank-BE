@@ -26,6 +26,7 @@ try {
   mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    autoIndex: false,
   });
   console.log("Database Connected.");
   app.listen(5050, () => {
