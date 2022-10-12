@@ -46,5 +46,4 @@ router.delete(
   orgController.deleteOrganization
 );
 
-
 module.exports = router;
