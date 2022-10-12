@@ -4,6 +4,9 @@ const router = express.Router({ mergeParams: true });
 const orgController = require("../controllers/orgControllers");
 const checkInvalidInput = require("../middlewares/invalidPost");
 
+router.get("/", orgController.getAllOrganization);
+router.get("/getOrganization/:orgId", orgController.getOrganization);
+
 router.post(
   "/createOrganization",
   [
@@ -17,19 +20,11 @@ router.post(
   checkInvalidInput.checkError,
   orgController.createOrganization
 );
-
 router.post(
   "/addBloodData",
   [body("bloodData").notEmpty(), body("orgId").isMongoId()],
   checkInvalidInput.checkError,
   orgController.addBloodData
-);
-
-router.get("/getOrganization/:orgId", orgController.getOrganization);
-
-router.delete(
-  "/deleteOrganization/:organizationId",
-  orgController.deleteOrganization
 );
 
 router.put(
@@ -45,5 +40,11 @@ router.put(
   checkInvalidInput.checkError,
   orgController.updateOrganization
 );
+
+router.delete(
+  "/deleteOrganization/:organizationId",
+  orgController.deleteOrganization
+);
+
 
 module.exports = router;

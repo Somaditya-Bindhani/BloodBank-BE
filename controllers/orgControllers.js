@@ -31,8 +31,15 @@ const createOrganization = async (req, res, next) => {
     );
   }
 };
-
-const getOrganization = async (req, res) => {
+const getAllOrganization = async (req, res, next) => {
+  try {
+    let organizations = await Organization.find();
+    return res.status(200).json(organizations);
+  } catch (err) {
+    return next(new HttpError(err.message, 500));
+  }
+};
+const getOrganization = async (req, res, next) => {
   const { orgId } = req.params;
   try {
     if (!orgId) {
@@ -98,4 +105,5 @@ module.exports = {
   deleteOrganization,
   updateOrganization,
   addBloodData,
+  getAllOrganization
 };
