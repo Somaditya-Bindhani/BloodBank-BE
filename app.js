@@ -19,7 +19,7 @@ app.use((err, req, res, next) => {
     .json({ error: err.message || "Something went wrong" });
 });
 app.use("*", (req, res) => {
-  res.status(500).json({ error: err.message || "Route not found" });
+  res.status(500).json({ error: "Route not found" });
 });
 
 try {
