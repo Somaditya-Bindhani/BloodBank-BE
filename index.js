@@ -18,7 +18,8 @@ app.use((req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  return res.json("Hello World !");
+  const data = process.env.MONGO_URL;
+  return res.json(data);
 });
 
 app.use("/api", router);
