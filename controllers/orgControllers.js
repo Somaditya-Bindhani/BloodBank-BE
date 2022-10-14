@@ -45,9 +45,12 @@ const getOrganization = async (req, res, next) => {
   try {
     const org = await Organization.findById(orgId);
 
-    const admins = await Workspace.find({ orgId: orgId }).populate({
+    const admins = await Workspace.find(
+      { orgId: orgId },
+      { _id: false }
+    ).populate({
       path: "orgAdminId",
-      select: ["email", "name"],
+      select: ["email"],
     });
     const orgDetails = {
       org,
