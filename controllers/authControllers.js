@@ -1,38 +1,38 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Admin = require("../models/admin");
+const OrgAdmin = require("../models/orgAdmin");
 const HttpError = require("../models/http-error");
+const superAdmin = require("../data/superAdmin");
 const Workspace = require("../models/workspace");
 const adminModel = require("../models/admin");
 
 // controller to creat super admin only for devlopment
-// const signup = async (req, res, next) => {
-//   let hashedPassword;
-//   try {
-//     hashedPassword = await bcrypt.hash(process.env.SUPER_ADMIN_PASSWORD, 12);
-//   } catch (err) {
-//     return next(new HttpError("Could not create account.Try Again", 500));
-//   }
-//   const superAdmin = {
-//     email: "super_admin1@blood_bank.com",
-//     password: hashedPassword,
-//   };
-//   const newSuperAdmin = new adminModel(superAdmin);
-//   try {
-//     const data = await newSuperAdmin.save();
-//     if (!data) return next(new HttpError("Failed to create super user", 500));
-//     return res.json(data);
-//   } catch (err) {
-//     return next(new HttpError("Failed to create super user", 500));
-//   }
-// };
+const createSuperAdmin = async (req, res, next) => {
+  const { email, password } = req.body;
+  try {
+    const hashedPassword = await bcrypt.hash(password, 12);
+    let data = new OrgAdmin({
+      email,
+      password: hashedPassword,
+      role: "superAdmin",
+      isReset: true,
+    });
+    data = await data.save();
+    return res.json("Super Admin Created.");
+  } catch (err) {
+    console.log(err);
+    return next(new HttpError("Failed to create Super Admin.", 500));
+  }
+};
 
 const login = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const userData = await Admin.findOne({ email });
+    let userData = await OrgAdmin.findOne({ email });
     if (!userData) {
-      return next(new HttpError("User Not found.", 404));
+      if (!userData) {
+        return next(new HttpError("User Not found.", 404));
+      }
     }
 
     let passIsValid = false;
@@ -40,19 +40,17 @@ const login = async (req, res, next) => {
     if (!passIsValid) {
       return next(new HttpError("Invalid Credentails.", 402));
     }
-
     let token;
     token = jwt.sign(
       { email: userData.email, id: userData.id.toString() },
       process.env.JWT_KEY,
       { expiresIn: "1h" }
     );
-
     return res.status(200).json({
       accessToken: token,
       userId: userData.id.toString(),
       email,
-      isSuperAdmin: true,
+      role: userData.role,
     });
   } catch (err) {
     console.log(err.message);
@@ -62,4 +60,5 @@ const login = async (req, res, next) => {
 
 module.exports = {
   login,
+  createSuperAdmin,
 };
