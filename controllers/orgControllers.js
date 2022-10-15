@@ -6,7 +6,6 @@ const Blood = require("../models/blood");
 
 const createOrganization = async (req, res, next) => {
   const { name, address, state, city, PIN, contactNumber } = req.body;
-
   try {
     const orgData = await Organization.findOne({ name, state, city });
     if (orgData) {
@@ -21,8 +20,9 @@ const createOrganization = async (req, res, next) => {
       contactNumber,
     });
     await data.save();
-    return res.status(200).json(orgId);
+    return res.status(200).json({ orgId: data._id });
   } catch (err) {
+    console.log(err);
     return next(
       new HttpError(
         "Internal server error .Unable to create Organization .",
@@ -31,6 +31,7 @@ const createOrganization = async (req, res, next) => {
     );
   }
 };
+
 const getAllOrganization = async (req, res, next) => {
   try {
     let organizations = await Organization.find();

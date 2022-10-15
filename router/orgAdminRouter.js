@@ -9,8 +9,12 @@ const orgAdminController = require("../controllers/orgAdminContollers");
 const checkInvalidInput = require("../middlewares/invalidPost");
 
 router.post(
-  "/createOrgAdmin/:orgId",
-  [body("email").notEmpty(), body("password").notEmpty().isLength({ min: 7 })],
+  "/createOrgAdmin",
+  [
+    body("email").notEmpty(),
+    body("password").notEmpty().isLength({ min: 7 }),
+    body("orgId").notEmpty().isMongoId(),
+  ],
   checkInvalidInput.checkError,
   orgAdminController.createOrgAdmin
 );

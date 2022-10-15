@@ -5,12 +5,10 @@ const mongoose = require("mongoose");
 const HttpError = require("../models/http-error");
 
 const createOrgAdmin = async (req, res, next) => {
-  const { orgId } = req.params;
-  const { email, password } = req.body;
+  const { email, password ,orgId } = req.body;
   if (!orgId) return next(new HttpError("Organisation Id not specified", 400));
   try {
     const userData = await OrgAdmin.findOne({ email });
-
     if (userData) {
       return next(
         new HttpError(
