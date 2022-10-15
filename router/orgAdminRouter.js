@@ -3,17 +3,17 @@
 //activate org admin
 
 const express = require("express");
-const { body } = require("express-validator");
+const { body, param } = require("express-validator");
 const router = express.Router({ mergeParams: true });
 const orgAdminController = require("../controllers/orgAdminContollers");
 const checkInvalidInput = require("../middlewares/invalidPost");
 
 router.post(
-  "/createOrgAdmin",
+  "/createOrgAdmin/:orgId",
   [
     body("email").notEmpty(),
     body("password").notEmpty().isLength({ min: 7 }),
-    body("orgId").notEmpty().isMongoId(),
+    param("orgId").notEmpty().isMongoId(),
   ],
   checkInvalidInput.checkError,
   orgAdminController.createOrgAdmin

@@ -94,16 +94,28 @@ const updateOrganization = async (req, res, next) => {
   }
 };
 
-const addBloodData = async (req, res) => {
+const addBloodData = async (req, res, next) => {
   const { bloodData, orgId } = req.body;
 
   try {
     const data = await Blood.insertMany(
-      bloodData.map((ele) => ({ ...ele, orgId: orgId }))
+      bloodData.map(
+        (ele) => ({
+          ...ele,
+          orgId: orgId,
+          uniqueId: orgId + ele.bloodGroup + ele.type,
+        }),
+        {
+          ordered: true,
+        }
+      )
     );
     return res.status(200).json(data);
   } catch (error) {
     console.log(error);
+    return next(
+      new HttpError("Internal server error .Unable add Blood data", 500)
+    );
   }
 };
 
