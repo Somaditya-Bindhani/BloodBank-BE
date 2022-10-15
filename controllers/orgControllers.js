@@ -41,17 +41,22 @@ const getAllOrganization = async (req, res, next) => {
 };
 const getOrganization = async (req, res, next) => {
   const { orgId } = req.params;
+  if (!orgId) return next(new HttpError("Organisation Id not specified", 400));
   try {
-    if (!orgId) {
-      let organizations = await Organization.find();
-      return res.status(200).json(organizations);
-    }
-    const workspace = await Workspace.findOne({ orgId: orgId })
-      .populate({
-        path: "orgId",
-      })
-      .populate({ path: "orgAdminId", select: ["email", "name"] });
-    return res.status(200).json(workspace);
+    const org = await Organization.findById(orgId);
+
+    const admins = await Workspace.find(
+      { orgId: orgId },
+      { _id: false }
+    ).populate({
+      path: "orgAdminId",
+      select: ["email"],
+    });
+    const orgDetails = {
+      org,
+      admins,
+    };
+    return res.status(200).json(orgDetails);
   } catch (err) {
     return next(new HttpError(err.message, 500));
   }
@@ -59,12 +64,13 @@ const getOrganization = async (req, res, next) => {
 
 const deleteOrganization = async (req, res, next) => {
   const { organizationId } = req.params;
-  console.log("ok");
+  if (!organizationId)
+    return next(new HttpError("Organization Id Not Specified", 400));
   try {
     const data = await Organization.deleteOne({ _id: organizationId });
 
     if (data && data.acknowledged && data.deletedCount)
-      return res.redirect(302, "/api/organization/");
+      return res.redirect(303, "/api/organization/");
   } catch (err) {
     return next(new HttpError(err.message, 500));
   }
@@ -89,7 +95,7 @@ const updateOrganization = async (req, res, next) => {
 
 const addBloodData = async (req, res) => {
   const { bloodData, orgId } = req.body;
-  console.log(req.body);
+
   try {
     const data = await Blood.insertMany(
       bloodData.map((ele) => ({ ...ele, orgId: orgId }))

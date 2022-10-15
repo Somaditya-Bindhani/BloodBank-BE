@@ -4,15 +4,20 @@ const Workspace = require("../models/workspace");
 const mongoose = require("mongoose");
 const HttpError = require("../models/http-error");
 
-const createOrgAdmin = async (req, res) => {
-  const { email, orgId, password } = req.body;
+const createOrgAdmin = async (req, res, next) => {
+  const { orgId } = req.params;
+  const { email, password } = req.body;
+  if (!orgId) return next(new HttpError("Organisation Id not specified", 400));
   try {
     const userData = await OrgAdmin.findOne({ email });
 
     if (userData) {
-      return res
-        .status(404)
-        .json("User Exist. Please try with a different email .");
+      return next(
+        new HttpError(
+          "Admin Already Exists. Please try with a different email .",
+          400
+        )
+      );
     }
 
     const hassedPassword = await bcrypt.hash(password, 12);
@@ -33,9 +38,9 @@ const createOrgAdmin = async (req, res) => {
 
     return res.status(200).json(orgAdminData);
   } catch (err) {
-    return res
-      .status(500)
-      .json("Internal server error .Unable to create user .");
+    return next(
+      new HttpError("Internal server error .Unable to create user.", 500)
+    );
   }
 };
 
