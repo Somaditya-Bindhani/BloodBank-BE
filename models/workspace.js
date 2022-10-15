@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const workspaceSchema = new mongoose.Schema({
   orgAdminId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: "orgAdmin",
+    ref: "orgAdmin",
   },
   orgId: {
     type: mongoose.Schema.Types.ObjectId,

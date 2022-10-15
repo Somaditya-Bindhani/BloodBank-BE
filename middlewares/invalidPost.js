@@ -1,9 +1,10 @@
 const { validationResult } = require("express-validator");
-
+const HttpError = require("../models/http-error");
 const checkError = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(402).json("Invalid Inputs!");
+    console.log(errors);
+    return next(new HttpError("Invalid Inputs", 400));
   }
   next();
 };

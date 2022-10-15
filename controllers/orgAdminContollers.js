@@ -1,30 +1,69 @@
-// create org admin
-// activate org admin
-// linkOrgAdmin
-
-// update org admin
-// delete org adin
-
 const OrgAdmin = require("../models/orgAdmin");
+const bcrypt = require("bcryptjs");
+const Workspace = require("../models/workspace");
+const mongoose = require("mongoose");
+const HttpError = require("../models/http-error");
 
-const createOrgAdmin = async (req, res) => {
-  const { email } = req.body;
+const createOrgAdmin = async (req, res, next) => {
+  const { email, password ,orgId } = req.body;
+  if (!orgId) return next(new HttpError("Organisation Id not specified", 400));
   try {
     const userData = await OrgAdmin.findOne({ email });
     if (userData) {
-      return res
-        .status(404)
-        .json("User Exist. Please try with a different email .");
+      return next(
+        new HttpError(
+          "Admin Already Exists. Please try with a different email .",
+          400
+        )
+      );
     }
-    const data = new OrgAdmin({
+
+    const hassedPassword = await bcrypt.hash(password, 12);
+    const orgAdminData = new OrgAdmin({
       email,
+      password: hassedPassword,
     });
-    await data.save();
-    return res.status(200).json("User Created .");
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    await orgAdminData.save();
+    const workspaceData = new Workspace({
+      orgAdminId: orgAdminData._id,
+      orgId: orgId,
+    });
+    await workspaceData.save();
+    session.commitTransaction();
+
+    return res.status(200).json(orgAdminData);
   } catch (err) {
-    return res
-      .status(500)
-      .json("Internal server error .Unable to create user .");
+    return next(
+      new HttpError("Internal server error .Unable to create user.", 500)
+    );
+  }
+};
+
+const orgAdminPassReset = async (req, res, next) => {
+  const { email, newPassword, oldPassword } = req.body;
+  try {
+    if (oldPassword === newPassword) {
+      return next(new HttpError("Old and New Password can't be same.", 400));
+    }
+    let user = await OrgAdmin.findOne({ email });
+    if (!user) {
+      return next(new HttpError("No User Found .", 404));
+    }
+    let passIsValid = await bcrypt.compare(oldPassword, user.password);
+    if (!passIsValid) {
+      return next(new HttpError("Invalid Credentails.", 402));
+    }
+    const hassedPassword = await bcrypt.hash(newPassword, 12);
+    user.password = hassedPassword;
+    user.isReset = true;
+    user = await user.save();
+    return res.status(200).json(user);
+  } catch (err) {
+    console.log(err);
+    return next(new HttpError("Internal Server Error.", 500));
   }
 };
 
@@ -77,4 +116,5 @@ module.exports = {
   createOrgAdmin,
   linkOrgAdmin,
   activateOrgAdmin,
+  orgAdminPassReset,
 };

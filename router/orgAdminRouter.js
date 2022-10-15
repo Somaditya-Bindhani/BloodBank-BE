@@ -10,9 +10,20 @@ const checkInvalidInput = require("../middlewares/invalidPost");
 
 router.post(
   "/createOrgAdmin",
-  [body("email").notEmpty()],
+  [
+    body("email").notEmpty(),
+    body("password").notEmpty().isLength({ min: 7 }),
+    body("orgId").notEmpty().isMongoId(),
+  ],
   checkInvalidInput.checkError,
   orgAdminController.createOrgAdmin
+);
+
+router.put(
+  "/resetPassword",
+  [body("email").notEmpty()],
+  checkInvalidInput.checkError,
+  orgAdminController.orgAdminPassReset
 );
 
 router.post(

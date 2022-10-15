@@ -7,6 +7,10 @@ const adminSchema = new mongoose.Schema({
   password: {
     type: String,
   },
+  role: {
+    type: String,
+    default: "orgAdmin",
+  },
   isReset: {
     type: Boolean,
     default: false,
