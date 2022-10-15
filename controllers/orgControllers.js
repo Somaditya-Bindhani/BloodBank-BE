@@ -25,7 +25,7 @@ const createOrganization = async (req, res, next) => {
   } catch (err) {
     return next(
       new HttpError(
-        "Internal server error .Unable to create IOrganization .",
+        "Internal server error .Unable to create Organization .",
         500
       )
     );
@@ -106,5 +106,5 @@ module.exports = {
   deleteOrganization,
   updateOrganization,
   addBloodData,
-  getAllOrganization
+  getAllOrganization,
 };
