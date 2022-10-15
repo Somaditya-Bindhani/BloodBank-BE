@@ -11,7 +11,7 @@ const createOrganization = async (req, res, next) => {
     if (orgData) {
       return res.status(404).json("Organization Exist.");
     }
-    const data = new Organization({
+    let data = new Organization({
       name,
       address,
       state,
