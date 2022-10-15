@@ -11,7 +11,7 @@ const createOrganization = async (req, res, next) => {
     if (orgData) {
       return res.status(404).json("Organization Exist.");
     }
-    const data = new Organization({
+    let data = new Organization({
       name,
       address,
       state,
@@ -19,7 +19,7 @@ const createOrganization = async (req, res, next) => {
       PIN,
       contactNumber,
     });
-    await data.save();
+    data = await data.save();
     return res.status(200).json({ orgId: data._id });
   } catch (err) {
     console.log(err);
