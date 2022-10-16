@@ -6,7 +6,7 @@ const superAdmin = require("../data/superAdmin");
 const Workspace = require("../models/workspace");
 const adminModel = require("../models/admin");
 
-// controller to creat super admin only for devlopment
+// controller to create super admin only for development
 const createSuperAdmin = async (req, res, next) => {
   const { email, password } = req.body;
   try {
@@ -49,8 +49,9 @@ const login = async (req, res, next) => {
     return res.status(200).json({
       accessToken: token,
       userId: userData.id.toString(),
-      email,
+      email: userData.email,
       role: userData.role,
+      isReset: userData.isReset,
     });
   } catch (err) {
     console.log(err.message);
