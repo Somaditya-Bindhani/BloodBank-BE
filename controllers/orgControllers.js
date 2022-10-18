@@ -34,15 +34,31 @@ const createOrganization = async (req, res, next) => {
 
 const getAllOrganization = async (req, res, next) => {
   try {
-    let organizations = await Organization.find();
+    let organizations;
+    if (req.userData.role === "superAdmin") {
+      organizations = await Organization.find();
+    } else {
+      organizations = await Workspace.findById(req.workspace._id).populate({
+        path: "orgId",
+      });
+      organizations = [organizations.orgId];
+    }
     return res.status(200).json(organizations);
   } catch (err) {
     return next(new HttpError(err.message, 500));
   }
 };
+
 const getOrganization = async (req, res, next) => {
   const { orgId } = req.params;
   if (!orgId) return next(new HttpError("Organisation Id not specified", 400));
+
+  if (
+    req.userData.role === "orgAdmin" &&
+    orgId !== req.workspace.orgId.toString()
+  ) {
+    return next(new HttpError("Forbidden Resource", 403));
+  }
   try {
     const org = await Organization.findById(orgId);
 
