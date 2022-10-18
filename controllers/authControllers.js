@@ -34,25 +34,26 @@ const login = async (req, res, next) => {
         return next(new HttpError("User Not found.", 404));
       }
     }
-
     let passIsValid = false;
     passIsValid = await bcrypt.compare(password, userData.password);
     if (!passIsValid) {
       return next(new HttpError("Invalid Credentails.", 402));
     }
-    let token;
-    token = jwt.sign(
-      { email: userData.email, id: userData.id.toString() },
-      process.env.JWT_KEY,
-      { expiresIn: "1h" }
-    );
-    return res.status(200).json({
-      accessToken: token,
+    let data = {
       userId: userData.id.toString(),
       email: userData.email,
       role: userData.role,
       isReset: userData.isReset,
-    });
+    };
+    if (userData.isReset) {
+      const token = jwt.sign(
+        { email: userData.email, id: userData.id.toString() },
+        process.env.JWT_KEY,
+        { expiresIn: "1h" }
+      );
+      data = { ...data, accessToken: token };
+    }
+    return res.status(200).json(data);
   } catch (err) {
     console.log(err.message);
     return next(HttpError("Internal Server Error.", 500));
