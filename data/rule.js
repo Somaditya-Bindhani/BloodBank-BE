@@ -16,6 +16,10 @@ const rules = {
       { role: "superAdmin", access: true },
       { role: "orgAdmin", access: true },
     ],
+    updateBloodData: [
+      { role: "superAdmin", access: true },
+      { role: "orgAdmin", access: true },
+    ],
     updateOrganization: [
       { role: "superAdmin", access: true },
       { role: "orgAdmin", access: true },

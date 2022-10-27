@@ -80,11 +80,10 @@ const getOrganization = async (req, res, next) => {
 };
 
 const deleteOrganization = async (req, res, next) => {
-  const { organizationId } = req.params;
-  if (!organizationId)
-    return next(new HttpError("Organization Id Not Specified", 400));
+  const { orgId } = req.params;
+  if (!orgId) return next(new HttpError("Organization Id Not Specified", 400));
   try {
-    const data = await Organization.deleteOne({ _id: organizationId });
+    const data = await Organization.deleteOne({ _id: orgId });
 
     if (data && data.acknowledged && data.deletedCount)
       return res.redirect(303, "/api/organization/");
@@ -96,11 +95,11 @@ const deleteOrganization = async (req, res, next) => {
 const updateOrganization = async (req, res, next) => {
   const { name, address, state, city, PIN, contactNumber } = req.body;
   const updatedValues = { name, address, state, city, PIN, contactNumber };
-  const { organizationId } = req.params;
+  const { orgId } = req.params;
   // updatedValues -> object contains fields to be updated with values
   try {
     const updatedOrganization = await Organization.findByIdAndUpdate(
-      organizationId,
+      orgId,
       updatedValues,
       { returnDocument: "after" }
     );
@@ -111,21 +110,35 @@ const updateOrganization = async (req, res, next) => {
 };
 
 const addBloodData = async (req, res, next) => {
-  const { bloodData, orgId } = req.body;
-
+  const { bloodData } = req.body;
+  const { orgId } = req.params;
   try {
     const data = await Blood.insertMany(
-      bloodData.map(
-        (ele) => ({
-          ...ele,
-          orgId: orgId,
-          uniqueId: orgId + ele.bloodGroup + ele.type,
-        }),
-        {
-          ordered: true,
-        }
-      )
+      bloodData.map((ele) => ({
+        ...ele,
+        orgId: orgId,
+      })),
+      { ordered: false }
     );
+    return res.status(200).json(data);
+  } catch (error) {
+    console.log(error);
+    if (error.code === 11000 && error.insertedDocs.length) {
+      return res.status(200).json(error.insertedDocs);
+    }
+    return next(
+      new HttpError("Internal server error .Unable add Blood data", 500)
+    );
+  }
+};
+
+const updateBloodData = async (req, res, next) => {
+  const { bloodData } = req.body;
+  const { bloodId } = req.params;
+  try {
+    const data = await Blood.findOneAndUpdate({ _id: bloodId }, bloodData, {
+      new: true,
+    });
     return res.status(200).json(data);
   } catch (error) {
     console.log(error);
@@ -142,4 +155,5 @@ module.exports = {
   updateOrganization,
   addBloodData,
   getAllOrganization,
+  updateBloodData,
 };
