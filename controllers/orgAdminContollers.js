@@ -45,9 +45,6 @@ const createOrgAdmin = async (req, res, next) => {
 
 const orgAdminPassReset = async (req, res, next) => {
   const { email, newPassword, oldPassword } = req.body;
-  if (req.userData.email !== email) {
-    return next(new HttpError("Forbidden Resource", 403));
-  }
   try {
     if (oldPassword === newPassword) {
       return next(new HttpError("Old and New Password can't be same.", 400));
