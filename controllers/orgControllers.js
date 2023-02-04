@@ -69,9 +69,11 @@ const getOrganization = async (req, res, next) => {
       path: "orgAdminId",
       select: ["email"],
     });
+    const bloodData = await Blood.find({ orgId: orgId });
     const orgDetails = {
       org,
       admins,
+      bloodData,
     };
     return res.status(200).json(orgDetails);
   } catch (err) {
