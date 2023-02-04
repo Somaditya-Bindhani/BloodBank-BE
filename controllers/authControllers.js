@@ -28,19 +28,18 @@ const createSuperAdmin = async (req, res, next) => {
 const login = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    let userData = await OrgAdmin.findOne({ email });
+    const userData = await OrgAdmin.findOne({ email });
     if (!userData) {
       if (!userData) {
         return next(new HttpError("User Not found.", 404));
       }
     }
-    let passIsValid = false;
-    passIsValid = await bcrypt.compare(password, userData.password);
+    const passIsValid = await bcrypt.compare(password, userData.password);
     if (!passIsValid) {
       return next(new HttpError("Invalid Credentails.", 402));
     }
     let data = {
-      userId: userData.id.toString(),
+      _id: userData.id.toString(),
       email: userData.email,
       role: userData.role,
       isReset: userData.isReset,
@@ -51,7 +50,7 @@ const login = async (req, res, next) => {
         process.env.JWT_KEY,
         { expiresIn: "1h" }
       );
-      data = { ...data, accessToken: token };
+      data = { ...data, accessToken: token, workspace: req.workspace };
     }
     return res.status(200).json(data);
   } catch (err) {

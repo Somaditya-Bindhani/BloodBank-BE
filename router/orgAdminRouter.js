@@ -7,6 +7,12 @@ const { body, param } = require("express-validator");
 const router = express.Router({ mergeParams: true });
 const orgAdminController = require("../controllers/orgAdminContollers");
 const checkInvalidInput = require("../middlewares/invalidPost");
+const verifier = require("../middlewares/verifier");
+
+router.get(
+  "/getWorkspace/:orgAdminId",
+  orgAdminController.getOrgAdminWorkspace
+);
 
 router.post(
   "/createOrgAdmin/:orgId",
@@ -34,6 +40,12 @@ router.post(
   [body("orgAdminId").notEmpty().isMongoId()],
   checkInvalidInput.checkError,
   orgAdminController.activateOrgAdmin
+);
+router.put(
+  "/resetPassword",
+  [body("email").notEmpty(), body("password").notEmpty().isLength({ min: 7 })],
+  checkInvalidInput.checkError,
+  orgAdminController.orgAdminPassReset
 );
 
 module.exports = router;

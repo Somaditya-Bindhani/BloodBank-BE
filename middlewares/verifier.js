@@ -3,6 +3,8 @@ const Blood = require("../models/blood");
 
 const orgIdVerifier = (req, res, next) => {
   const { orgId } = req.params;
+  console.log(req.userData, "userData");
+  console.log(req.workspace, "workspace");
   if (
     req.userData.role === "orgAdmin" &&
     orgId !== req.workspace.orgId.toString()

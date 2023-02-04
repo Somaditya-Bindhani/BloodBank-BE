@@ -35,7 +35,15 @@ const rules = {
       { role: "orgAdmin", access: false },
     ],
     resetPassword: [
-      { role: "superAdmin", access: false },
+      { role: "superAdmin", access: true },
+      { role: "orgAdmin", access: false },
+    ],
+    activateOrgAdmin: [
+      { role: "superAdmin", access: true },
+      { role: "orgAdmin", access: false },
+    ],
+    getWorkspace: [
+      { role: "superAdmin", access: true },
       { role: "orgAdmin", access: true },
     ],
   },

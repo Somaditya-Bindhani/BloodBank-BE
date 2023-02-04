@@ -9,10 +9,11 @@ const auth = (req, res, next) => {
     return next();
   }
   try {
-    const token = req.headers.authorization.split(" ")[1];
-    if (!token) {
-      return next(new HttpError("Authorization failed", 402));
+    const authToken = req.headers.authorization;
+    if (!authToken) {
+      return next(new HttpError("Please Provide a Auth token", 400));
     } else {
+      const token = req.headers.authorization.split(" ")[1];
       const decodedToken = jwt.verify(token, process.env.JWT_KEY);
       req.userData = {
         userId: decodedToken.id,
@@ -20,6 +21,7 @@ const auth = (req, res, next) => {
       next();
     }
   } catch (err) {
+    console.log(err);
     return next(new HttpError("Auth failed", 402));
   }
 };

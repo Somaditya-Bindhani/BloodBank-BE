@@ -35,7 +35,12 @@ const createOrgAdmin = async (req, res, next) => {
     await workspaceData.save();
     session.commitTransaction();
 
-    return res.status(200).json(orgAdminData);
+    return res.status(200).json({
+      _id: orgAdminData._id,
+      email: orgAdminData.email,
+      isReset: orgAdminData.isReset,
+      role: orgAdminData.role,
+    });
   } catch (err) {
     return next(
       new HttpError("Internal server error .Unable to create user.", 500)
@@ -44,31 +49,29 @@ const createOrgAdmin = async (req, res, next) => {
 };
 
 const orgAdminPassReset = async (req, res, next) => {
-  const { email, newPassword, oldPassword } = req.body;
+  const { email, password } = req.body;
   try {
-    if (oldPassword === newPassword) {
-      return next(new HttpError("Old and New Password can't be same.", 400));
-    }
     let user = await OrgAdmin.findOne({ email });
     if (!user) {
       return next(new HttpError("No User Found .", 404));
     }
-    let passIsValid = await bcrypt.compare(oldPassword, user.password);
-    if (!passIsValid) {
-      return next(new HttpError("Invalid Credentails.", 402));
+    const passIsSame = await bcrypt.compare(password, user.password);
+    if (passIsSame) {
+      return next(
+        new HttpError("New Password and Old Password are same.", 402)
+      );
     }
-    const hassedPassword = await bcrypt.hash(newPassword, 12);
+    const hassedPassword = await bcrypt.hash(password, 12);
     user.password = hassedPassword;
-    user.isReset = true;
     user = await user.save();
-    return res.status(200).json(user);
+    return res.status(200).json("Password Reset Sucessfull .");
   } catch (err) {
     console.log(err);
     return next(new HttpError("Internal Server Error.", 500));
   }
 };
 
-const linkOrgAdmin = async (req, res) => {
+const linkOrgAdmin = async (req, res, next) => {
   const { orgAdminId, orgId } = req.body;
   try {
     const orgData = await Organization.findOne({ _id: orgId });
@@ -91,26 +94,33 @@ const linkOrgAdmin = async (req, res) => {
   }
 };
 
-const activateOrgAdmin = async (req, res) => {
+const activateOrgAdmin = async (req, res, next) => {
   const { orgAdminId } = req.body;
   try {
     const orgAdmin = await OrgAdmin.findById(orgAdminId);
     if (!orgAdmin) {
-      return res.status(404).json("Organization Admin Not Found .");
+      return next(new HttpError("Organization Admin Not Found .", 404));
     }
 
-    const tempPassword = (Math.random() + 1).toString(36).substring(2);
-    const password = await bcrypt.hash(tempPassword, 12);
-    orgAdmin.password = password;
+    if (orgAdmin.isReset) {
+      return next(new HttpError("Organization Admin Already active.", 400));
+    }
+
+    orgAdmin.isReset = true;
     await orgAdmin.save();
 
     return res.status(200).json("Organization Admin Activation Sucessfull .");
   } catch (err) {
     console.log(err);
-    return res
-      .status(500)
-      .json("Internal server error .Unable to create Linkage .");
+    return next(new HttpError("Internal server error", 500));
   }
+};
+
+const getOrgAdminWorkspace = async (req, res, next) => {
+  const { orgAdminId } = req.params;
+  console.log(orgAdminId);
+  const workspaces = await Workspace.find({ orgAdminId });
+  return res.status(200).send(workspaces);
 };
 
 module.exports = {
@@ -118,4 +128,5 @@ module.exports = {
   linkOrgAdmin,
   activateOrgAdmin,
   orgAdminPassReset,
+  getOrgAdminWorkspace,
 };
